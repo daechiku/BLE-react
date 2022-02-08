@@ -17,7 +17,8 @@ import {
   Text,
   useColorScheme,
   View,
-  Button
+  Button,
+  PermissionsAndroid
 } from 'react-native';
 
 import {
@@ -33,7 +34,7 @@ global.Buffer = global.Buffer || require('buffer').Buffer
 
 
 import { BleManager, Device } from 'react-native-ble-plx';
-const manager = new BleManager();
+//const manager = new BleManager();
 
 
 
@@ -65,7 +66,7 @@ const Section: React.FC<{
   );
 };
 
-const App = () => {
+const App =   () => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -97,7 +98,35 @@ const App = () => {
     }
   }
 
+  //*
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+        {
+          title: "Cool Photo App Camera Permission",
+          message:
+            "Cool Photo App needs access to your camera " +
+            "so you can take awesome pictures.",
+          buttonNeutral: "Ask Me Later",
+          buttonNegative: "Cancel",
+          buttonPositive: "OK"
+        }
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log("You can use the camera");
+      } else {
+        console.log("Camera permission denied");
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+  //requestCameraPermission()
+  //*/
+
   const scanDevices = () => {
+    let manager = new BleManager();
     // display the Activityindicator
     //setIsLoading(true);
 
@@ -118,12 +147,14 @@ const App = () => {
         console.log(`Manufacturer raw : ${device.manufacturerData}`)
         console.log(`Manufacturer hex : ${base64ToHex(device.manufacturerData)}`)
         console.log(`berat : ${beratDariTimabahagan(device.manufacturerData)}`)
+        manager.stopDeviceScan();
+        manager = {};
       }
     });
 
     // stop scanning devices after 5 seconds
     setTimeout(() => {
-      manager.stopDeviceScan();
+      //manager.stopDeviceScan();
       //setIsLoading(false);
     }, 5000);
   };
